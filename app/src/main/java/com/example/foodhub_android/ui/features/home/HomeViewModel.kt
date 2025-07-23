@@ -12,12 +12,13 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import androidx.lifecycle.viewModelScope
 import com.example.foodhub_android.data.models.Category
+import com.example.foodhub_android.data.models.Restaurant
 import com.example.foodhub_android.data.remote.ApiResponse
 import com.example.foodhub_android.data.remote.safeApiCall
 import kotlinx.coroutines.launch
 
 @HiltViewModel
-class HomeViewModel @Inject constructor (val foodApi: FoodApi) : ViewModel() {
+class HomeViewModel @Inject constructor(val foodApi: FoodApi) : ViewModel() {
     private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Idle)
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
@@ -25,31 +26,58 @@ class HomeViewModel @Inject constructor (val foodApi: FoodApi) : ViewModel() {
     val navigationEvent: SharedFlow<HomeNavigationEvent> = _navigationEvent.asSharedFlow()
 
     var categories = emptyList<Category>()
+    var restaurants = emptyList<Restaurant>()
 
     init {
-        getCategories()
-        getPopularRestaurants()
-    }
-
-    private fun getPopularRestaurants() {
-
-    }
-
-    private fun getCategories() {
         viewModelScope.launch {
-            val response = safeApiCall { foodApi.getCategories() }
-            when (response) {
-                is ApiResponse.Success -> {
-                    categories = response.data.data
-                    _uiState.value = HomeUiState.Success(response.data)
-                }
-                is ApiResponse.Error -> {
-                    _uiState.value = HomeUiState.Error(response.message)
-                }
-                is ApiResponse.Exception -> {
-                    _uiState.value = HomeUiState.Error(response.exception.localizedMessage ?: "Unknown error")
-                }
+            categories = getCategories()
+            restaurants = getPopularRestaurants()
+
+            if (categories.isEmpty() && restaurants.isEmpty()) {
+                _uiState.value = HomeUiState.Error("No data found")
+            } else {
+                _uiState.value = HomeUiState.Success(Unit)
             }
+        }
+    }
+
+    private suspend fun getPopularRestaurants(): List<Restaurant> {
+        var list = emptyList<Restaurant>()
+        val response = safeApiCall { foodApi.getRestaurants(40.7128, -74.0060) }
+        when (response) {
+            is ApiResponse.Success -> {
+                list = response.data.data
+                _uiState.value = HomeUiState.Success(response.data)
+            }
+
+            else -> {}
+        }
+        return list
+    }
+
+    private suspend fun getCategories(): List<Category> {
+        var list = emptyList<Category>()
+        val response = safeApiCall { foodApi.getCategories() }
+        when (response) {
+            is ApiResponse.Success -> {
+                list = response.data.data
+                _uiState.value = HomeUiState.Success(response.data)
+            }
+
+            else -> {}
+        }
+        return list
+    }
+
+    fun onRestaurantClick(restaurant: Restaurant) {
+        viewModelScope.launch {
+            _navigationEvent.emit(
+                HomeNavigationEvent.NavigateToRestaurantDetails(
+                    restaurant.name,
+                    restaurant.imageUrl,
+                    restaurant.id
+                )
+            )
         }
     }
 
@@ -62,5 +90,10 @@ class HomeViewModel @Inject constructor (val foodApi: FoodApi) : ViewModel() {
 
     sealed class HomeNavigationEvent {
         object NavigateToLogin : HomeNavigationEvent()
+        data class NavigateToRestaurantDetails(
+            val name: String,
+            val imageUrl: String,
+            val restaurantId: String
+        ) : HomeNavigationEvent()
     }
 }

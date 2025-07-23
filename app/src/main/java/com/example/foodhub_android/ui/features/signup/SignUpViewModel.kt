@@ -8,6 +8,7 @@ import com.example.foodhub_android.data.FoodApi
 import com.example.foodhub_android.data.auth.GoogleAuthUiProvider
 import com.example.foodhub_android.data.models.OAuthRequest
 import com.example.foodhub_android.data.models.SignUpRequest
+import com.example.foodhub_android.data.remote.FoodHubSession
 import com.example.foodhub_android.ui.features.base.BaseAuthViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,8 +18,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SignUpViewModel @Inject constructor(val foodApi: FoodApi)
-    : BaseAuthViewModel<SignUpViewModel.SignUpNavigationEvent>() {
+class SignUpViewModel @Inject constructor(val foodApi: FoodApi, val session: FoodHubSession) :
+    BaseAuthViewModel<SignUpViewModel.SignUpNavigationEvent>() {
     val googleAuthUiProvider = GoogleAuthUiProvider()
 
     private val _fullName = MutableStateFlow("")
@@ -51,8 +52,11 @@ class SignUpViewModel @Inject constructor(val foodApi: FoodApi)
             val request = OAuthRequest(response.token, "google")
             handleApiCall(
                 call = { foodApi.oAuth(request) },
-                success = { navigate(SignUpNavigationEvent.NavigateToHome) },
-                onError = {setUiState(BaseUiState.Error(it))}
+                success = {
+                    session.storeToken(it.token)
+                    navigate(SignUpNavigationEvent.NavigateToHome)
+                },
+                onError = { setUiState(BaseUiState.Error(it)) }
             )
         }
     }
@@ -61,8 +65,11 @@ class SignUpViewModel @Inject constructor(val foodApi: FoodApi)
         val request = SignUpRequest(fullName.value, email.value, password.value)
         handleApiCall(
             call = { foodApi.signUp(request) },
-            success = { navigate(SignUpNavigationEvent.NavigateToHome) },
-            onError = {setUiState(BaseUiState.Error(it))}
+            success = {
+                session.storeToken(it.token)
+                navigate(SignUpNavigationEvent.NavigateToHome)
+            },
+            onError = { setUiState(BaseUiState.Error(it)) }
         )
     }
 

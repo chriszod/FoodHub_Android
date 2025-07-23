@@ -6,14 +6,18 @@ import androidx.lifecycle.viewModelScope
 import com.example.foodhub_android.data.FoodApi
 import com.example.foodhub_android.data.auth.GoogleAuthUiProvider
 import com.example.foodhub_android.data.models.OAuthRequest
+import com.example.foodhub_android.data.remote.FoodHubSession
 import com.example.foodhub_android.ui.features.base.BaseAuthViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class AuthViewModel @Inject constructor(val foodApi: FoodApi)
-    : BaseAuthViewModel<AuthViewModel.AuthNavigationEvent>() {
+class AuthViewModel @Inject constructor(
+    val foodApi: FoodApi,
+    val session: FoodHubSession
+) :
+    BaseAuthViewModel<AuthViewModel.AuthNavigationEvent>() {
     val googleAuthUiProvider = GoogleAuthUiProvider()
 
     fun onGoogleClick(context: Context) {
@@ -25,8 +29,11 @@ class AuthViewModel @Inject constructor(val foodApi: FoodApi)
             val request = OAuthRequest(response.token, "google")
             handleApiCall(
                 call = { foodApi.oAuth(request) },
-                success = { navigate(AuthNavigationEvent.NavigateToHome) },
-                onError = {setUiState(BaseUiState.Error(it))}
+                success = {
+                    session.storeToken(it.token)
+                    navigate(AuthNavigationEvent.NavigateToHome)
+                },
+                onError = { setUiState(BaseUiState.Error(it)) }
             )
         }
     }

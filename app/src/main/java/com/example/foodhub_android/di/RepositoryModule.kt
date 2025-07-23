@@ -1,9 +1,12 @@
 package com.example.foodhub_android.di
 
+import android.content.Context
 import com.example.foodhub_android.data.FoodApi
+import com.example.foodhub_android.data.remote.FoodHubSession
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -19,19 +22,32 @@ object RepositoryModule {
     fun provideBaseUrl() = "http://10.0.2.2:8080/" // emulator-safe
 
     @Provides
-    @Singleton
-    fun provideOkHttpClient(): OkHttpClient =
-        OkHttpClient.Builder()
-            .addInterceptor(HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptor.Level.BODY
-            }).build()
+    fun provideSession(@ApplicationContext context: Context): FoodHubSession {
+        return FoodHubSession(context)
+    }
+
+    @Provides
+    fun provideClient(session: FoodHubSession, @ApplicationContext context: Context): OkHttpClient {
+        val client = OkHttpClient.Builder()
+        client.addInterceptor { chain ->
+            val request = chain.request().newBuilder()
+                .addHeader("Authorization", "Bearer ${session.getToken()}")
+                .addHeader("X-Package-Name", context.packageName)
+                .build()
+            chain.proceed(request)
+        }
+        client.addInterceptor(HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        })
+        return client.build()
+    }
 
     @Provides
     @Singleton
-    fun provideRetrofit(okHttpClient: OkHttpClient, baseUrl: String): Retrofit {
+    fun provideRetrofit(client: OkHttpClient, baseUrl: String): Retrofit {
         return Retrofit.Builder()
             .baseUrl(baseUrl)
-            .client(okHttpClient)
+            .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }

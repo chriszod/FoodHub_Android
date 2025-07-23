@@ -7,6 +7,7 @@ import com.example.foodhub_android.data.FoodApi
 import com.example.foodhub_android.data.auth.GoogleAuthUiProvider
 import com.example.foodhub_android.data.models.LoginRequest
 import com.example.foodhub_android.data.models.OAuthRequest
+import com.example.foodhub_android.data.remote.FoodHubSession
 import com.example.foodhub_android.ui.features.base.BaseAuthViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,8 +17,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(val foodApi: FoodApi)
-    : BaseAuthViewModel<LoginViewModel.LoginNavigationEvent>() {
+class LoginViewModel @Inject constructor(
+    val foodApi: FoodApi,
+    private val session: FoodHubSession
+) : BaseAuthViewModel<LoginViewModel.LoginNavigationEvent>() {
     val googleAuthUiProvider = GoogleAuthUiProvider()
 
     private val _email = MutableStateFlow("")
@@ -38,8 +41,11 @@ class LoginViewModel @Inject constructor(val foodApi: FoodApi)
         val request = LoginRequest(email.value, password.value)
         handleApiCall(
             call = { foodApi.login(request) },
-            success = { navigate(LoginNavigationEvent.NavigateToHome) },
-            onError = {setUiState(BaseUiState.Error(it))}
+            success = {
+                session.storeToken(it.token)
+                navigate(LoginNavigationEvent.NavigateToHome)
+            },
+            onError = { setUiState(BaseUiState.Error(it)) }
         )
     }
 
@@ -58,8 +64,11 @@ class LoginViewModel @Inject constructor(val foodApi: FoodApi)
             val request = OAuthRequest(response.token, "google")
             handleApiCall(
                 call = { foodApi.oAuth(request) },
-                success = { navigate(LoginNavigationEvent.NavigateToHome) },
-                onError = {setUiState(BaseUiState.Error(it))}
+                success = {
+                    session.storeToken(it.token)
+                    navigate(LoginNavigationEvent.NavigateToHome)
+                },
+                onError = { setUiState(BaseUiState.Error(it)) }
             )
         }
     }
