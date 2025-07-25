@@ -40,6 +40,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.foodhub_android.R
 import com.example.foodhub_android.data.models.FoodItem
+import com.example.foodhub_android.navigation.Cart
 import com.example.foodhub_android.ui.BasicDialog
 import com.example.foodhub_android.ui.features.restaurant_details.RestaurantDetailsBody
 import com.example.foodhub_android.ui.features.restaurant_details.RestaurantDetailsHeader
@@ -63,13 +64,11 @@ fun FoodItemDetailsScreen(
     LaunchedEffect(Unit) {
         viewModel.event.collectLatest {
             when (it) {
-                is FoodDetailsViewModel.FoodDetailsEvent.onAddToCart -> {
-                    Toast.makeText(navController.context, "Added to cart", Toast.LENGTH_SHORT)
-                        .show()
+                is FoodDetailsViewModel.FoodDetailsEvent.OnAddToCart -> {
                 }
 
-                is FoodDetailsViewModel.FoodDetailsEvent.goToCart -> {
-                    Toast.makeText(navController.context, "Go to cart", Toast.LENGTH_SHORT).show()
+                is FoodDetailsViewModel.FoodDetailsEvent.GoToCart -> {
+                    navController.navigate(Cart)
                 }
             }
         }
@@ -85,6 +84,16 @@ fun FoodItemDetailsScreen(
                 viewModel.onDialogDismissed()
             })
             isLoading.value = false
+        }
+
+        is FoodDetailsViewModel.FoodDetailsUiState.Success -> {
+            isLoading.value = false
+            BasicDialog(
+                title = "Success",
+                description = "Item added to cart",
+                onDismiss = { viewModel.onDialogDismissed() },
+                onAction = { viewModel.goToCart() }
+            )
         }
 
         else -> {

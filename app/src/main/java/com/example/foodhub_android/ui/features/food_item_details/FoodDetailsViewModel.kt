@@ -4,10 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.foodhub_android.data.FoodApi
 import com.example.foodhub_android.data.models.AddToCartRequest
-import com.example.foodhub_android.data.models.FoodItem
 import com.example.foodhub_android.data.remote.ApiResponse
 import com.example.foodhub_android.data.remote.safeApiCall
-import com.example.foodhub_android.ui.features.base.BaseAuthViewModel.BaseUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -44,8 +42,8 @@ class FoodDetailsViewModel @Inject constructor(val foodApi: FoodApi) : ViewModel
             }
             when (response) {
                 is ApiResponse.Success -> {
-                    _uiState.value = FoodDetailsUiState.Idle
-                    _event.emit(FoodDetailsEvent.onAddToCart)
+                    _uiState.value = FoodDetailsUiState.Success
+                    _event.emit(FoodDetailsEvent.OnAddToCart)
                 }
                 is ApiResponse.Error -> {
                     _uiState.value = FoodDetailsUiState.Error(response.message)
@@ -68,6 +66,12 @@ class FoodDetailsViewModel @Inject constructor(val foodApi: FoodApi) : ViewModel
         _uiState.value = FoodDetailsUiState.Idle
     }
 
+    fun goToCart() {
+        viewModelScope.launch {
+            _event.emit(FoodDetailsEvent.GoToCart)
+        }
+    }
+
     sealed class FoodDetailsUiState {
         object Idle : FoodDetailsUiState()
         object Loading : FoodDetailsUiState()
@@ -76,7 +80,7 @@ class FoodDetailsViewModel @Inject constructor(val foodApi: FoodApi) : ViewModel
     }
 
     sealed class FoodDetailsEvent {
-        object goToCart : FoodDetailsEvent()
-        object onAddToCart : FoodDetailsEvent()
+        object GoToCart : FoodDetailsEvent()
+        object OnAddToCart : FoodDetailsEvent()
     }
 }

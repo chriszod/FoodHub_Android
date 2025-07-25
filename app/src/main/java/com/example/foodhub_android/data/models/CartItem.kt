@@ -1,9 +1,9 @@
 package com.example.foodhub_android.data.models
 
-data class Item(
+data class CartItem(
     val addedAt: String,
     val id: String,
-    val menuItemId: MenuItemId,
+    val menuItemId: FoodItem,
     val quantity: Int,
     val restaurantId: String,
     val userId: String

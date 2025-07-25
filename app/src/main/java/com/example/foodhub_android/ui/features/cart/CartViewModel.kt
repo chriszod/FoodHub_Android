@@ -1,0 +1,127 @@
+package com.example.foodhub_android.ui.features.cart
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.foodhub_android.data.FoodApi
+import com.example.foodhub_android.data.models.CartItem
+import com.example.foodhub_android.data.models.CartResponse
+import com.example.foodhub_android.data.models.UpdateCartItemRequest
+import com.example.foodhub_android.data.remote.ApiResponse
+import com.example.foodhub_android.data.remote.safeApiCall
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+@HiltViewModel
+class CartViewModel @Inject constructor(val foodApi: FoodApi) : ViewModel() {
+    private val _uiState = MutableStateFlow<CartUiState>(CartUiState.Idle)
+    val uiState = _uiState.asStateFlow()
+
+    private val _event = MutableSharedFlow<CartNavigationEvent>()
+    val event = _event.asSharedFlow()
+
+    private var cartResponse: CartResponse? = null
+
+    init {
+        getCart()
+    }
+
+    fun getCart() {
+        viewModelScope.launch {
+            _uiState.value = CartUiState.Loading
+            val response = safeApiCall { foodApi.getCart() }
+            when (response) {
+                is ApiResponse.Success -> {
+                    cartResponse = response.data
+                    _uiState.value = CartUiState.Success(response.data)
+                }
+
+                is ApiResponse.Error -> {
+                    _uiState.value = CartUiState.Error(response.message)
+                }
+
+                else -> {
+                    _uiState.value = CartUiState.Error("Unknown error")
+                }
+            }
+        }
+    }
+
+    private fun updateItemQuantity(cartItem: CartItem, quantity: Int) {
+        _uiState.value = CartUiState.Loading
+        viewModelScope.launch {
+            val response =
+                safeApiCall { foodApi.updateCart(UpdateCartItemRequest(cartItem.id, quantity)) }
+
+            when (response) {
+                is ApiResponse.Success -> {
+                    getCart()
+                }
+                else -> {
+                    cartResponse?.let {
+                        _uiState.value = CartUiState.Success(cartResponse!!)
+                    }
+                    _event.emit(CartNavigationEvent.OnQuantityUpdateError)
+                }
+            }
+        }
+    }
+
+    fun increaseQuantity(cartItem: CartItem) {
+        if (cartItem.quantity < 20) {
+            updateItemQuantity(cartItem, cartItem.quantity + 1)
+        }
+    }
+
+    fun decreaseQuantity(cartItem: CartItem) {
+        if (cartItem.quantity > 1) {
+            updateItemQuantity(cartItem, cartItem.quantity - 1)
+        }
+    }
+
+    fun removeItem(cartItem: CartItem) {
+        _uiState.value = CartUiState.Loading
+        viewModelScope.launch {
+            val response =
+                safeApiCall { foodApi.deleteCartItem(cartItem.id) }
+
+            when (response) {
+                is ApiResponse.Success -> {
+                    getCart()
+                }
+                else -> {
+                    cartResponse?.let {
+                        _uiState.value = CartUiState.Success(cartResponse!!)
+                    }
+                    _event.emit(CartNavigationEvent.OnItemRemoveError)
+                }
+            }
+        }
+    }
+
+    fun applyPromo() {
+
+    }
+
+    fun checkout() {
+
+    }
+
+    sealed class CartUiState {
+        object Idle : CartUiState()
+        object Loading : CartUiState()
+        data class Success(val data: CartResponse) : CartUiState()
+        data class Error(val message: String) : CartUiState()
+    }
+
+    sealed class CartNavigationEvent {
+        object GoToCheckout : CartNavigationEvent()
+        object OnQuantityUpdateError : CartNavigationEvent()
+        object OnItemRemoveError : CartNavigationEvent()
+        object OnPromoApplyError : CartNavigationEvent()
+    }
+}

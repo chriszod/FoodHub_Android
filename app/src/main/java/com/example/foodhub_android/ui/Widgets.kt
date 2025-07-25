@@ -191,7 +191,8 @@ fun CustomEditText(
 fun BasicDialog(
     title: String,
     description: String,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    onAction: () -> Unit = {}
 ) {
     Dialog(
         onDismissRequest = onDismiss,
@@ -222,6 +223,15 @@ fun BasicDialog(
                 shape = RoundedCornerShape(32.dp)
             ) {
                 Text(text = stringResource(id = R.string.ok), color = Color.White)
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = onAction,
+                colors = ButtonDefaults.buttonColors(containerColor = Orange),
+                shape = RoundedCornerShape(32.dp)
+            ) {
+                Text(text = stringResource(id = R.string.action), color = Color.White)
             }
         }
     }

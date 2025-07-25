@@ -14,6 +14,7 @@ import androidx.navigation.toRoute
 import com.example.foodhub_android.data.models.FoodItem
 import com.example.foodhub_android.data.remote.FoodHubSession
 import com.example.foodhub_android.ui.features.auth.AuthScreen
+import com.example.foodhub_android.ui.features.cart.CartScreen
 import com.example.foodhub_android.ui.features.food_item_details.FoodItemDetailsScreen
 import com.example.foodhub_android.ui.features.home.HomeScreen
 import com.example.foodhub_android.ui.features.login.LoginScreen
@@ -33,6 +34,7 @@ fun AppNavHost(navController: NavHostController = rememberNavController(), modif
             composable<Auth> { AuthScreen(navController = navController) }
             composable<SignUp> { SignUpScreen(navController = navController) }
             composable<Login> { LoginScreen(navController = navController) }
+            composable<Cart> { CartScreen(navController = navController) }
             composable<Home> {
                 HomeScreen(
                     navController = navController,
