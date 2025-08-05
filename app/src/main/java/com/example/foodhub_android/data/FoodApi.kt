@@ -2,6 +2,8 @@ package com.example.foodhub_android.data
 
 import com.example.foodhub_android.data.models.AddToCartRequest
 import com.example.foodhub_android.data.models.AddToCartResponse
+import com.example.foodhub_android.data.models.Address
+import com.example.foodhub_android.data.models.AddressListResponse
 import com.example.foodhub_android.data.models.SignUpRequest
 import com.example.foodhub_android.data.models.AuthResponse
 import com.example.foodhub_android.data.models.CartResponse
@@ -11,6 +13,7 @@ import com.example.foodhub_android.data.models.OAuthRequest
 import com.example.foodhub_android.data.models.RestaurantsResponse
 import com.example.foodhub_android.data.models.FoodItemResponse
 import com.example.foodhub_android.data.models.GenericMsgResponse
+import com.example.foodhub_android.data.models.ReverseGeoCodeRequest
 import com.example.foodhub_android.data.models.UpdateCartItemRequest
 import retrofit2.Response
 import retrofit2.http.Body
@@ -56,4 +59,13 @@ interface FoodApi {
 
     @DELETE("/cart/{cartItemId}")
     suspend fun deleteCartItem(@Path("cartItemId") cartItemId: String): Response<GenericMsgResponse>
+
+    @GET("/addresses")
+    suspend fun getUserAddress(): Response<AddressListResponse>
+
+    @POST("/addresses/reverse-geocode")
+    suspend fun reverseGeocode(@Body request: ReverseGeoCodeRequest): Response<Address>
+
+    @POST("/addresses")
+    suspend fun storeAddress(@Body address: Address): Response<GenericMsgResponse>
 }

@@ -1,7 +1,5 @@
 package com.example.foodhub_android.ui.features.signup
 
-import android.util.Log
-import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn

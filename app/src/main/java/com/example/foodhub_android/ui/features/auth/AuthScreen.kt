@@ -1,7 +1,5 @@
 package com.example.foodhub_android.ui.features.auth
 
-import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -101,15 +99,12 @@ fun AuthScreen(viewModel: AuthViewModel = hiltViewModel(), navController: NavCon
             viewModel.navigationEvent.collect {
                 when (it) {
                     is AuthViewModel.AuthNavigationEvent.NavigateToSignup -> {
-                        Toast.makeText(context, "to signup screen", Toast.LENGTH_SHORT).show()
                         navController.navigate(SignUp)
                     }
                     is AuthViewModel.AuthNavigationEvent.NavigateToLogin -> {
-                        Toast.makeText(context, "to login screen", Toast.LENGTH_SHORT).show()
                         navController.navigate(Login)
                     }
                     is AuthViewModel.AuthNavigationEvent.NavigateToHome -> {
-                        Toast.makeText(context, "successful login", Toast.LENGTH_SHORT).show()
                         navController.navigate(Home)
                     }
                 }

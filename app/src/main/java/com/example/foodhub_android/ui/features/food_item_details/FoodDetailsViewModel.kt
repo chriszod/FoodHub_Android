@@ -43,33 +43,30 @@ class FoodDetailsViewModel @Inject constructor(val foodApi: FoodApi) : ViewModel
             when (response) {
                 is ApiResponse.Success -> {
                     _uiState.value = FoodDetailsUiState.Success
-                    _event.emit(FoodDetailsEvent.OnAddToCart)
+                    _event.emit(FoodDetailsEvent.OnAddToCartSuccess)
                 }
                 is ApiResponse.Error -> {
                     _uiState.value = FoodDetailsUiState.Error(response.message)
                 }
-                else -> {}
+                else -> {
+                    _uiState.value = FoodDetailsUiState.Error("Unknown exception")
+                }
             }
         }
     }
 
     fun increaseQuantity() {
-        _quantity.value++
+        _quantity.value += 1
     }
 
     fun decreaseQuantity() {
-        if (_quantity.value > 1)
-            _quantity.value--
+        if (_quantity.value > 1) {
+            _quantity.value -= 1
+        }
     }
 
     fun onDialogDismissed() {
         _uiState.value = FoodDetailsUiState.Idle
-    }
-
-    fun goToCart() {
-        viewModelScope.launch {
-            _event.emit(FoodDetailsEvent.GoToCart)
-        }
     }
 
     sealed class FoodDetailsUiState {
@@ -80,7 +77,6 @@ class FoodDetailsViewModel @Inject constructor(val foodApi: FoodApi) : ViewModel
     }
 
     sealed class FoodDetailsEvent {
-        object GoToCart : FoodDetailsEvent()
-        object OnAddToCart : FoodDetailsEvent()
+        object OnAddToCartSuccess : FoodDetailsEvent()
     }
 }

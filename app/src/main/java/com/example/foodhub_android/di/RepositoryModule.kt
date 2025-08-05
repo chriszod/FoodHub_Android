@@ -3,6 +3,8 @@ package com.example.foodhub_android.di
 import android.content.Context
 import com.example.foodhub_android.data.FoodApi
 import com.example.foodhub_android.data.remote.FoodHubSession
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -24,6 +26,11 @@ object RepositoryModule {
     @Provides
     fun provideSession(@ApplicationContext context: Context): FoodHubSession {
         return FoodHubSession(context)
+    }
+
+    @Provides
+    fun provideLocationService(@ApplicationContext context: Context): FusedLocationProviderClient {
+        return LocationServices.getFusedLocationProviderClient(context)
     }
 
     @Provides

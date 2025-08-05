@@ -1,6 +1,5 @@
 package com.example.foodhub_android.ui.features.food_item_details
 
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
@@ -40,7 +39,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.foodhub_android.R
 import com.example.foodhub_android.data.models.FoodItem
-import com.example.foodhub_android.navigation.Cart
 import com.example.foodhub_android.ui.BasicDialog
 import com.example.foodhub_android.ui.features.restaurant_details.RestaurantDetailsBody
 import com.example.foodhub_android.ui.features.restaurant_details.RestaurantDetailsHeader
@@ -54,6 +52,7 @@ fun FoodItemDetailsScreen(
     foodItem: FoodItem,
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
+    onItemAddedToCart: () -> Unit,
     viewModel: FoodDetailsViewModel = hiltViewModel()
 ) {
     val price = foodItem.price.toString()
@@ -64,11 +63,8 @@ fun FoodItemDetailsScreen(
     LaunchedEffect(Unit) {
         viewModel.event.collectLatest {
             when (it) {
-                is FoodDetailsViewModel.FoodDetailsEvent.OnAddToCart -> {
-                }
-
-                is FoodDetailsViewModel.FoodDetailsEvent.GoToCart -> {
-                    navController.navigate(Cart)
+                is FoodDetailsViewModel.FoodDetailsEvent.OnAddToCartSuccess -> {
+                    onItemAddedToCart()
                 }
             }
         }
@@ -88,12 +84,6 @@ fun FoodItemDetailsScreen(
 
         is FoodDetailsViewModel.FoodDetailsUiState.Success -> {
             isLoading.value = false
-            BasicDialog(
-                title = "Success",
-                description = "Item added to cart",
-                onDismiss = { viewModel.onDialogDismissed() },
-                onAction = { viewModel.goToCart() }
-            )
         }
 
         else -> {

@@ -3,6 +3,7 @@ package com.example.foodhub_android.ui.features.cart
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.foodhub_android.data.FoodApi
+import com.example.foodhub_android.data.models.Address
 import com.example.foodhub_android.data.models.CartItem
 import com.example.foodhub_android.data.models.CartResponse
 import com.example.foodhub_android.data.models.UpdateCartItemRequest
@@ -24,7 +25,13 @@ class CartViewModel @Inject constructor(val foodApi: FoodApi) : ViewModel() {
     private val _event = MutableSharedFlow<CartNavigationEvent>()
     val event = _event.asSharedFlow()
 
+    private val _cartItemCount = MutableStateFlow(0)
+    val cartItemCount = _cartItemCount.asStateFlow()
+
     private var cartResponse: CartResponse? = null
+
+    private val address = MutableStateFlow<Address?>(null)
+    val selectedAddress = address.asStateFlow()
 
     init {
         getCart()
@@ -38,6 +45,7 @@ class CartViewModel @Inject constructor(val foodApi: FoodApi) : ViewModel() {
                 is ApiResponse.Success -> {
                     cartResponse = response.data
                     _uiState.value = CartUiState.Success(response.data)
+                    _cartItemCount.value = response.data.items.size
                 }
 
                 is ApiResponse.Error -> {
@@ -88,7 +96,6 @@ class CartViewModel @Inject constructor(val foodApi: FoodApi) : ViewModel() {
         viewModelScope.launch {
             val response =
                 safeApiCall { foodApi.deleteCartItem(cartItem.id) }
-
             when (response) {
                 is ApiResponse.Success -> {
                     getCart()
@@ -111,6 +118,16 @@ class CartViewModel @Inject constructor(val foodApi: FoodApi) : ViewModel() {
 
     }
 
+    fun onAddressClicked() {
+        viewModelScope.launch {
+            _event.emit(CartNavigationEvent.OnAddressClicked)
+        }
+    }
+
+    fun onAddressSelected(it: Address) {
+        address.value = it
+    }
+
     sealed class CartUiState {
         object Idle : CartUiState()
         object Loading : CartUiState()
@@ -123,5 +140,6 @@ class CartViewModel @Inject constructor(val foodApi: FoodApi) : ViewModel() {
         object OnQuantityUpdateError : CartNavigationEvent()
         object OnItemRemoveError : CartNavigationEvent()
         object OnPromoApplyError : CartNavigationEvent()
+        object OnAddressClicked : CartNavigationEvent()
     }
 }

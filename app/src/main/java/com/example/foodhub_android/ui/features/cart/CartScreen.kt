@@ -18,15 +18,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -49,8 +51,10 @@ import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import com.example.foodhub_android.R
 import com.example.foodhub_android.StringUtils
+import com.example.foodhub_android.data.models.Address
 import com.example.foodhub_android.data.models.CartItem
 import com.example.foodhub_android.data.models.CheckoutDetails
+import com.example.foodhub_android.navigation.AddressList
 import com.example.foodhub_android.ui.theme.Orange
 
 @Composable
@@ -65,7 +69,6 @@ fun CartScreen(navController: NavController, viewModel: CartViewModel = hiltView
                 }
 
                 is CartViewModel.CartNavigationEvent.OnItemRemoveError -> {
-
                 }
 
                 is CartViewModel.CartNavigationEvent.OnPromoApplyError -> {
@@ -73,9 +76,24 @@ fun CartScreen(navController: NavController, viewModel: CartViewModel = hiltView
                 }
 
                 is CartViewModel.CartNavigationEvent.OnQuantityUpdateError -> {
+                }
 
+                is CartViewModel.CartNavigationEvent.OnAddressClicked -> {
+                    navController.navigate(AddressList)
                 }
             }
+        }
+    }
+
+    val address =
+        navController.currentBackStackEntry?.savedStateHandle?.getStateFlow<Address?>(
+            "address",
+            null
+        )?.collectAsStateWithLifecycle()
+
+    LaunchedEffect(key1 = address?.value) {
+        address?.value?.let {
+            viewModel.onAddressSelected(it)
         }
     }
 
@@ -90,59 +108,77 @@ fun CartScreen(navController: NavController, viewModel: CartViewModel = hiltView
         when (val state = uiState.value) {
             is CartViewModel.CartUiState.Success -> {
                 val data = state.data
-                LazyColumn {
-                    items(data.items.size) {
-                        CartScreenBody(
-                            cartItem = data.items[it],
-                            onItemCancelClick = { viewModel.removeItem(data.items[it]) },
-                            onIncreaseClick = { viewModel.increaseQuantity(data.items[it]) },
-                            onDecreaseClick = { viewModel.decreaseQuantity(data.items[it]) }
+                if (data.items.isEmpty()) {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_bag),
+                            contentDescription = null,
+                            tint = Color.Gray
+                        )
+                        Text(
+                            text = "Your cart is empty",
+                            style = TextStyle(fontSize = 20.sp, color = Color.Gray),
                         )
                     }
+                } else {
+                    LazyColumn {
+                        items(data.items) {
+                            CartScreenBody(
+                                cartItem = it,
+                                onItemCancelClick = { viewModel.removeItem(it) },
+                                onIncreaseClick = { viewModel.increaseQuantity(it) },
+                                onDecreaseClick = { viewModel.decreaseQuantity(it) }
+                            )
+                        }
 
-                    item {
-                        Spacer(Modifier.height(36.dp))
-                        PromoCodeInput(
-                            promoCode = "",
-                            onPromoCodeChange = { },
-                            onApplyClick = { }
-                        )
-                    }
+                        item {
+                            Spacer(Modifier.height(36.dp))
+                            PromoCodeInput(
+                                promoCode = "",
+                                onPromoCodeChange = { },
+                                onApplyClick = { }
+                            )
+                        }
 
-                    item {
-                        Spacer(Modifier.height(36.dp))
-                        CartCostSummary(
-                            itemCount = data.items.size,
-                            checkoutDetails = data.checkoutDetails
-                        )
-                    }
+                        item {
+                            Spacer(Modifier.height(36.dp))
+                            CartCostSummary(
+                                itemCount = data.items.size,
+                                checkoutDetails = data.checkoutDetails
+                            )
+                        }
 
-                    item {
-                        Spacer(Modifier.height(100.dp))
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            TextButton(
+                        item {
+                            val selectedAddress =
+                                viewModel.selectedAddress.collectAsStateWithLifecycle()
+                            Spacer(Modifier.height(100.dp))
+                            AddressCard(selectedAddress.value) {
+                                viewModel.onAddressClicked()
+                            }
+                            Spacer(Modifier.height(16.dp))
+                            Button(
                                 onClick = { viewModel.checkout() },
+                                enabled = selectedAddress.value != null,
+                                colors = ButtonDefaults.buttonColors(containerColor = Orange),
+                                shape = CircleShape,
                                 modifier = Modifier
-                                    .background(color = Orange, shape = CircleShape)
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 32.dp)
                             ) {
                                 Text(
                                     text = "CHECKOUT",
-                                    style = TextStyle(
-                                        color = Color.White,
-                                        fontSize = 20.sp,
-                                        fontWeight = FontWeight.Bold
-                                    ),
-                                    modifier = Modifier.padding(
-                                        horizontal = 60.dp,
-                                        vertical = 12.dp
-                                    )
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White,
+                                    modifier = Modifier.padding(vertical = 12.dp)
                                 )
                             }
+                            Spacer(Modifier.height(16.dp))
                         }
-                        Spacer(Modifier.height(16.dp))
                     }
                 }
             }
@@ -316,7 +352,10 @@ fun CostDetail(name: String, price: Double, isTotal: Boolean = false, itemCount:
             )
         }
         Spacer(Modifier.weight(1f))
-        Text(text = formattedPrice, style = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold))
+        Text(
+            text = formattedPrice,
+            style = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold)
+        )
         Spacer(Modifier.width(2.dp))
         Text(text = "USD", style = TextStyle(fontSize = 20.sp, color = Color.Gray))
     }
@@ -401,4 +440,36 @@ fun PromoCodeInput(
             }
         }
     }
+}
+
+@Composable
+fun AddressCard(address: Address?, onAddressClicked: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .shadow(2.dp)
+            .clip(
+                RoundedCornerShape(2.dp)
+            )
+            .background(Color.White)
+            .clickable { onAddressClicked() }
+            .padding(16.dp)
+
+    ) {
+        if (address != null) {
+            Column {
+                Text(text = address.addressLine1, style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.size(4.dp))
+                Text(
+                    text = "${address.city}, ${address.state}, ${address.country}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray
+                )
+            }
+        } else {
+            Text(text = "Select Address", style = MaterialTheme.typography.bodyMedium)
+        }
+    }
+
 }

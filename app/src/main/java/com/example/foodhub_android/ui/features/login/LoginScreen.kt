@@ -1,7 +1,5 @@
 package com.example.foodhub_android.ui.features.login
 
-import android.util.Log
-import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -108,11 +106,9 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), navController: NavC
             viewModel.navigationEvent.collect {
                 when (it) {
                     is LoginViewModel.LoginNavigationEvent.NavigateToSignup -> {
-                        Toast.makeText(context, "to signup screen", Toast.LENGTH_SHORT).show()
                         navController.navigate(SignUp)
                     }
                     is LoginViewModel.LoginNavigationEvent.NavigateToHome -> {
-                        Toast.makeText(context, "successful login", Toast.LENGTH_SHORT).show()
                         navController.navigate(Home)
                     }
                 }

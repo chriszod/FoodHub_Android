@@ -1,7 +1,6 @@
 package com.example.foodhub_android.ui.features.signup
 
 import android.content.Context
-import android.util.Log
 import androidx.credentials.CredentialManager
 import androidx.lifecycle.viewModelScope
 import com.example.foodhub_android.data.FoodApi
