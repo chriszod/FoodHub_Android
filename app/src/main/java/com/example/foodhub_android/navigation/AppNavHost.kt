@@ -30,6 +30,7 @@ import com.example.foodhub_android.ui.features.cart.CartViewModel
 import com.example.foodhub_android.ui.features.food_item_details.FoodItemDetailsScreen
 import com.example.foodhub_android.ui.features.home.HomeScreen
 import com.example.foodhub_android.ui.features.login.LoginScreen
+import com.example.foodhub_android.ui.features.order.OrderSuccessScreen
 import com.example.foodhub_android.ui.features.restaurant_details.RestaurantDetailsScreen
 import com.example.foodhub_android.ui.features.signup.SignUpScreen
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -137,6 +138,11 @@ fun AppNavHost(
                 composable<AddAddress> {
                     shouldShowBottomNav.value = false
                     AddAddressScreen(navController)
+                }
+                composable<OrderSuccess> {
+                    shouldShowBottomNav.value = false
+                    val orderId = it.toRoute<OrderSuccess>().orderId
+                    OrderSuccessScreen(orderId, navController)
                 }
             }
         }

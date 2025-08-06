@@ -6,6 +6,9 @@ import com.example.foodhub_android.data.FoodApi
 import com.example.foodhub_android.data.models.Address
 import com.example.foodhub_android.data.models.CartItem
 import com.example.foodhub_android.data.models.CartResponse
+import com.example.foodhub_android.data.models.ConfirmPaymentRequest
+import com.example.foodhub_android.data.models.PaymentIntentRequest
+import com.example.foodhub_android.data.models.PaymentIntentResponse
 import com.example.foodhub_android.data.models.UpdateCartItemRequest
 import com.example.foodhub_android.data.remote.ApiResponse
 import com.example.foodhub_android.data.remote.safeApiCall
@@ -32,6 +35,8 @@ class CartViewModel @Inject constructor(val foodApi: FoodApi) : ViewModel() {
 
     private val address = MutableStateFlow<Address?>(null)
     val selectedAddress = address.asStateFlow()
+
+    private var paymentIntent: PaymentIntentResponse? = null
 
     init {
         getCart()
@@ -69,6 +74,7 @@ class CartViewModel @Inject constructor(val foodApi: FoodApi) : ViewModel() {
                 is ApiResponse.Success -> {
                     getCart()
                 }
+
                 else -> {
                     cartResponse?.let {
                         _uiState.value = CartUiState.Success(cartResponse!!)
@@ -100,6 +106,7 @@ class CartViewModel @Inject constructor(val foodApi: FoodApi) : ViewModel() {
                 is ApiResponse.Success -> {
                     getCart()
                 }
+
                 else -> {
                     cartResponse?.let {
                         _uiState.value = CartUiState.Success(cartResponse!!)
@@ -115,7 +122,22 @@ class CartViewModel @Inject constructor(val foodApi: FoodApi) : ViewModel() {
     }
 
     fun checkout() {
+        viewModelScope.launch {
+            _uiState.value = CartUiState.Loading
+            val paymentDetails =
+                safeApiCall { foodApi.getPaymentIntent(PaymentIntentRequest(addressId = address.value!!.id!!)) }
+            when (paymentDetails) {
+                is ApiResponse.Success -> {
+                    paymentIntent = paymentDetails.data
+                    _event.emit(CartNavigationEvent.OnInitiatePayment(paymentDetails.data))
+                    _uiState.value = CartUiState.Success(cartResponse!!)
+                }
 
+                else -> {
+                    _uiState.value = CartUiState.Success(cartResponse!!)
+                }
+            }
+        }
     }
 
     fun onAddressClicked() {
@@ -128,6 +150,36 @@ class CartViewModel @Inject constructor(val foodApi: FoodApi) : ViewModel() {
         address.value = it
     }
 
+    fun onPaymentSuccess() {
+        viewModelScope.launch {
+            _uiState.value = CartUiState.Loading
+            val response = safeApiCall {
+                foodApi.verifyPurchase(
+                    ConfirmPaymentRequest(paymentIntent!!.paymentIntentId, address.value!!.id!!),
+                    paymentIntent!!.paymentIntentId
+                )
+            }
+            when (response) {
+                is ApiResponse.Success -> {
+                    _event.emit(CartNavigationEvent.OrderSuccess(response.data.orderId))
+                    _uiState.value = CartUiState.Success(cartResponse!!)
+                    getCart()
+                }
+
+                else -> {
+                    _event.emit(CartNavigationEvent.ShowErrorDialog)
+                    _uiState.value = CartUiState.Success(cartResponse!!)
+                }
+            }
+        }
+    }
+
+    fun onPaymentFailure() {
+        viewModelScope.launch {
+            _event.emit(CartNavigationEvent.ShowErrorDialog)
+        }
+    }
+
     sealed class CartUiState {
         object Idle : CartUiState()
         object Loading : CartUiState()
@@ -136,10 +188,13 @@ class CartViewModel @Inject constructor(val foodApi: FoodApi) : ViewModel() {
     }
 
     sealed class CartNavigationEvent {
-        object GoToCheckout : CartNavigationEvent()
+        data class OnInitiatePayment(val data: PaymentIntentResponse) : CartNavigationEvent()
+        object OnCheckout : CartNavigationEvent()
         object OnQuantityUpdateError : CartNavigationEvent()
         object OnItemRemoveError : CartNavigationEvent()
         object OnPromoApplyError : CartNavigationEvent()
         object OnAddressClicked : CartNavigationEvent()
+        object ShowErrorDialog : CartNavigationEvent()
+        data class OrderSuccess(val orderId: String?) : CartNavigationEvent()
     }
 }

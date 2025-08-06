@@ -8,11 +8,15 @@ import com.example.foodhub_android.data.models.SignUpRequest
 import com.example.foodhub_android.data.models.AuthResponse
 import com.example.foodhub_android.data.models.CartResponse
 import com.example.foodhub_android.data.models.CategoriesResponse
+import com.example.foodhub_android.data.models.ConfirmPaymentRequest
+import com.example.foodhub_android.data.models.ConfirmPaymentResponse
 import com.example.foodhub_android.data.models.LoginRequest
 import com.example.foodhub_android.data.models.OAuthRequest
 import com.example.foodhub_android.data.models.RestaurantsResponse
 import com.example.foodhub_android.data.models.FoodItemResponse
 import com.example.foodhub_android.data.models.GenericMsgResponse
+import com.example.foodhub_android.data.models.PaymentIntentRequest
+import com.example.foodhub_android.data.models.PaymentIntentResponse
 import com.example.foodhub_android.data.models.ReverseGeoCodeRequest
 import com.example.foodhub_android.data.models.UpdateCartItemRequest
 import retrofit2.Response
@@ -68,4 +72,18 @@ interface FoodApi {
 
     @POST("/addresses")
     suspend fun storeAddress(@Body address: Address): Response<GenericMsgResponse>
+
+    @POST("/payments/create-intent")
+    suspend fun getPaymentIntent(@Body request: PaymentIntentRequest): Response<PaymentIntentResponse>
+
+    @POST("/payments/confirm/{paymentIntentId}")
+    suspend fun verifyPurchase(
+        @Body request: ConfirmPaymentRequest, @Path("paymentIntentId") paymentIntentId: String
+    ): Response<ConfirmPaymentResponse>
+
+//    @GET("/orders")
+//    suspend fun getOrders(): Response<OrderListResponse>
+//
+//    @GET("/orders/{orderId}")
+//    suspend fun getOrderDetails(@Path("orderId") orderId: String): Response<Order>
 }

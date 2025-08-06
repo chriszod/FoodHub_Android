@@ -190,7 +190,7 @@ fun CustomEditText(
 fun BasicDialog(
     title: String,
     description: String,
-    onDismiss: () -> Unit,
+    onDismiss: () -> Unit = {},
     onAction: () -> Unit = {}
 ) {
     Dialog(

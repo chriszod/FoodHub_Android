@@ -33,6 +33,8 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -55,32 +57,65 @@ import com.example.foodhub_android.data.models.Address
 import com.example.foodhub_android.data.models.CartItem
 import com.example.foodhub_android.data.models.CheckoutDetails
 import com.example.foodhub_android.navigation.AddressList
+import com.example.foodhub_android.navigation.OrderSuccess
+import com.example.foodhub_android.ui.BasicDialog
 import com.example.foodhub_android.ui.theme.Orange
+import com.stripe.android.PaymentConfiguration
+import com.stripe.android.paymentsheet.PaymentSheet
+import com.stripe.android.paymentsheet.PaymentSheetResult
+import com.stripe.android.paymentsheet.rememberPaymentSheet
 
 @Composable
 fun CartScreen(navController: NavController, viewModel: CartViewModel = hiltViewModel()) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
 
+    val showDialog = remember {
+        mutableStateOf(false)
+    }
+    if (showDialog.value) {
+        BasicDialog("Error", "Something went wrong")
+    }
+
+    val paymentSheet = rememberPaymentSheet(
+        paymentResultCallback = {
+            if (it is PaymentSheetResult.Completed) {
+                viewModel.onPaymentSuccess()
+            } else {
+                viewModel.onPaymentFailure()
+            }
+        }
+    )
+
     LaunchedEffect(Unit) {
         viewModel.event.collect {
             when (it) {
-                is CartViewModel.CartNavigationEvent.GoToCheckout -> {
-
+                is CartViewModel.CartNavigationEvent.OrderSuccess -> {
+                    navController.navigate(OrderSuccess(it.orderId!!))
                 }
-
-                is CartViewModel.CartNavigationEvent.OnItemRemoveError -> {
+                is CartViewModel.CartNavigationEvent.OnInitiatePayment -> {
+                    PaymentConfiguration.init(navController.context, it.data.publishableKey)
+                    val customer = PaymentSheet.CustomerConfiguration(
+                        it.data.customerId,
+                        it.data.ephemeralKeySecret
+                    )
+                    val paymentSheetConfig = PaymentSheet.Configuration(
+                        merchantDisplayName = "FoodHub",
+                        customer = customer,
+                        allowsDelayedPaymentMethods = false
+                    )
+                    paymentSheet.presentWithPaymentIntent(
+                        it.data.paymentIntentClientSecret,
+                        paymentSheetConfig
+                    )
                 }
-
-                is CartViewModel.CartNavigationEvent.OnPromoApplyError -> {
-
-                }
-
-                is CartViewModel.CartNavigationEvent.OnQuantityUpdateError -> {
+                is CartViewModel.CartNavigationEvent.ShowErrorDialog -> {
+                    showDialog.value = true
                 }
 
                 is CartViewModel.CartNavigationEvent.OnAddressClicked -> {
                     navController.navigate(AddressList)
                 }
+                else -> {}
             }
         }
     }

@@ -73,6 +73,7 @@ dependencies {
     implementation(libs.maps.compose)
     implementation(libs.google.play.services.location)
     implementation(libs.kotlinx.coroutines.play.services)
+    implementation(libs.stripe.android)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
