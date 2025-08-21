@@ -35,7 +35,7 @@ sealed class BottomNavItem(val route: NavRoute, val icon: Int) {
 }
 
 @Composable
-fun BottomNavigationBar(navController: NavController, cartItemSize: State<Int>) {
+fun BottomNavigationBar(navController: NavController, cartItemSize: State<Int>?, unreadCount: State<Int>) {
     val currentRoute =
         navController.currentBackStackEntryAsState().value?.destination
 
@@ -59,8 +59,11 @@ fun BottomNavigationBar(navController: NavController, cartItemSize: State<Int>) 
                             painter = painterResource(id = item.icon),
                             contentDescription = null
                         )
-                        if (item.route == Cart && cartItemSize.value > 0) {
+                        if (item.route == Cart && cartItemSize?.value!! > 0) {
                             ItemCount(cartItemSize.value)
+                        }
+                        if(item.route == Notification && unreadCount.value > 0) {
+                            ItemCount(unreadCount.value)
                         }
                     }
                 },

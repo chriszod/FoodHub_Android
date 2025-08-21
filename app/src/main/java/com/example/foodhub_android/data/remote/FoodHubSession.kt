@@ -2,6 +2,9 @@ package com.example.foodhub_android.data.remote
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import androidx.core.content.edit
 
 class FoodHubSession(val context: Context) {
@@ -30,4 +33,11 @@ class FoodHubSession(val context: Context) {
         }
         return null
     }
+}
+
+@HiltViewModel
+class SessionViewModel @Inject constructor(
+    private val session: FoodHubSession
+) : ViewModel() {
+    fun hasToken(): Boolean = session.getToken() != null
 }

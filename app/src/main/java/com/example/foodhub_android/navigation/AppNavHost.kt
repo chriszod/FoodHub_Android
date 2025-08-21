@@ -8,20 +8,22 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.example.foodhub_android.HomeViewModel
 import com.example.foodhub_android.data.models.FoodItem
-import com.example.foodhub_android.data.remote.FoodHubSession
+import com.example.foodhub_android.data.remote.SessionViewModel
 import com.example.foodhub_android.ui.features.add_address.AddAddressScreen
 import com.example.foodhub_android.ui.features.address.AddressListScreen
 import com.example.foodhub_android.ui.features.auth.AuthScreen
@@ -30,34 +32,57 @@ import com.example.foodhub_android.ui.features.cart.CartViewModel
 import com.example.foodhub_android.ui.features.food_item_details.FoodItemDetailsScreen
 import com.example.foodhub_android.ui.features.home.HomeScreen
 import com.example.foodhub_android.ui.features.login.LoginScreen
+import com.example.foodhub_android.ui.features.notification.NotificationListScreen
+import com.example.foodhub_android.ui.features.notification.NotificationsViewModel
+import com.example.foodhub_android.ui.features.order.OrderDetailsScreen
+import com.example.foodhub_android.ui.features.order.OrderListScreen
 import com.example.foodhub_android.ui.features.order.OrderSuccessScreen
 import com.example.foodhub_android.ui.features.restaurant_details.RestaurantDetailsScreen
 import com.example.foodhub_android.ui.features.signup.SignUpScreen
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
+import kotlinx.coroutines.flow.collectLatest
 import kotlin.reflect.typeOf
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun AppNavHost(
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    viewModel: HomeViewModel
 ) {
     val sessionViewModel: SessionViewModel = hiltViewModel()
     val isLoggedIn = sessionViewModel.hasToken()
 
-    val shouldShowBottomNav = remember {
-        mutableStateOf(false)
+    // Declare it outside, but only initialize if logged in
+    val cartViewModel: CartViewModel? = if (isLoggedIn) {
+        hiltViewModel()
+    } else {
+        null
     }
+    val cartItemSize = cartViewModel?.cartItemCount?.collectAsStateWithLifecycle()
 
-    val cartViewModel: CartViewModel = hiltViewModel()
-    val cartItemSize = cartViewModel.cartItemCount.collectAsStateWithLifecycle()
+    val notificationViewModel: NotificationsViewModel = hiltViewModel()
+    val unreadCount = notificationViewModel.unreadCount.collectAsStateWithLifecycle()
 
+    val shouldShowBottomNav = remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = true) {
+        viewModel.event.collectLatest {
+            when (it) {
+                is HomeViewModel.HomeEvent.NavigateToOrderDetail -> {
+                    navController.navigate(OrderDetails(it.orderID))
+                }
+            }
+        }
+    }
 
     SharedTransitionLayout {
         Scaffold(
             bottomBar = {
                 AnimatedVisibility(visible = shouldShowBottomNav.value) {
-                    BottomNavigationBar(navController = navController, cartItemSize = cartItemSize)
+                    BottomNavigationBar(
+                        navController = navController,
+                        cartItemSize = cartItemSize,
+                        unreadCount = unreadCount
+                    )
                 }
             }
         ) { innerPadding ->
@@ -88,13 +113,13 @@ fun AppNavHost(
                 }
                 composable<Cart> {
                     shouldShowBottomNav.value = true
-                    CartScreen(navController = navController, viewModel = cartViewModel)
+                    cartViewModel?.let {
+                        CartScreen(navController = navController, viewModel = it)
+                    }
                 }
                 composable<Notification> {
                     shouldShowBottomNav.value = true
-                    Box {
-
-                    }
+                    NotificationListScreen(navController, notificationViewModel)
                 }
                 composable<RestaurantDetails> {
                     shouldShowBottomNav.value = false
@@ -109,27 +134,23 @@ fun AppNavHost(
                     )
                 }
                 composable<FoodItemDetails>(
-                    typeMap = mapOf(
-                        typeOf<FoodItem>() to foodItemNavType
-                    )
+                    typeMap = mapOf(typeOf<FoodItem>() to foodItemNavType)
                 ) {
                     shouldShowBottomNav.value = false
                     val route = it.toRoute<FoodItemDetails>()
-                    FoodItemDetailsScreen(
-                        navController = navController,
-                        foodItem = route.foodItem,
-                        sharedTransitionScope = this@SharedTransitionLayout,
-                        animatedVisibilityScope = this,
-                        onItemAddedToCart = {
-                            cartViewModel.getCart()
-                        }
-                    )
+                    cartViewModel?.let { vm ->
+                        FoodItemDetailsScreen(
+                            navController = navController,
+                            foodItem = route.foodItem,
+                            sharedTransitionScope = this@SharedTransitionLayout,
+                            animatedVisibilityScope = this,
+                            onItemAddedToCart = { vm.getCart() }
+                        )
+                    }
                 }
                 composable<OrderList> {
                     shouldShowBottomNav.value = true
-                    Box(modifier = Modifier.background(Color.White)) {
-
-                    }
+                    Box(modifier = Modifier.background(Color.White)) {}
                 }
                 composable<AddressList> {
                     shouldShowBottomNav.value = false
@@ -144,14 +165,16 @@ fun AppNavHost(
                     val orderId = it.toRoute<OrderSuccess>().orderId
                     OrderSuccessScreen(orderId, navController)
                 }
+                composable<OrderList> {
+                    shouldShowBottomNav.value = true
+                    OrderListScreen(navController)
+                }
+                composable<OrderDetails> {
+                    shouldShowBottomNav.value = false
+                    val orderId = it.toRoute<OrderDetails>().orderId
+                    OrderDetailsScreen(navController, orderId)
+                }
             }
         }
     }
-}
-
-@HiltViewModel
-class SessionViewModel @Inject constructor(
-    private val session: FoodHubSession
-) : ViewModel() {
-    fun hasToken(): Boolean = session.getToken() != null
 }
