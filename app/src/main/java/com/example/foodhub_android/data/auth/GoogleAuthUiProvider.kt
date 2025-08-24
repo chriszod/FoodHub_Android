@@ -1,13 +1,12 @@
 package com.example.foodhub_android.data.auth
 
 import android.content.Context
-import android.util.Log
 import androidx.credentials.Credential
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import com.example.foodhub_android.data.models.GoogleAccount
-import com.example.foodhub_android.GoogleServerClientID
+import com.example.foodhub_android.utils.GoogleServerClientID
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 

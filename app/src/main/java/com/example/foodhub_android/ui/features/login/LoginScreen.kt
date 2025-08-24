@@ -54,7 +54,7 @@ import com.example.foodhub_android.ui.BasicDialog
 import com.example.foodhub_android.ui.CustomEditText
 import com.example.foodhub_android.ui.GroupSocialsButton
 import com.example.foodhub_android.ui.features.base.BaseAuthViewModel.BaseUiState
-import com.example.foodhub_android.ui.theme.Orange
+import com.example.foodhub_android.ui.theme.MyPrimaryColor
 
 @Composable
 fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), navController: NavController) {
@@ -160,7 +160,7 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), navController: NavC
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = stringResource(id = R.string.forgot_password),
-                color = Orange,
+                color = MyPrimaryColor,
                 fontSize = 16.sp,
                 modifier = Modifier.clickable(onClick = {})
             )
@@ -169,7 +169,7 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), navController: NavC
             Button(
                 onClick = viewModel::onLoginClick,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Orange
+                    containerColor = MyPrimaryColor
                 ),
                 modifier = Modifier.height(55.dp)
             ) {
@@ -214,7 +214,7 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel(), navController: NavC
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
                     text = stringResource(id = R.string.signup),
-                    color = Orange,
+                    color = MyPrimaryColor,
                     fontSize = 16.sp,
                     textDecoration = TextDecoration.Underline,
                     modifier = Modifier.clickable(onClick = viewModel::onSignupCLick)

@@ -8,8 +8,8 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="com.example.foodhub_android" />
-                  <option name="mobileSdkAppId" value="1:949889855265:android:e2e4d7c9d5b60f5cdf1860" />
+                  <option name="appId" value="com.example.foodhub_android.restaurant" />
+                  <option name="mobileSdkAppId" value="1:949889855265:android:ebc7637d7e1aeeeadf1860" />
                   <option name="projectId" value="foodhub-991d1" />
                   <option name="projectNumber" value="949889855265" />
                 </ConnectionSetting>

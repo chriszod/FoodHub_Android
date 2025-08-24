@@ -49,7 +49,7 @@ import com.example.foodhub_android.ui.BasicDialog
 import com.example.foodhub_android.ui.GroupSocialsButton
 import com.example.foodhub_android.ui.features.base.BaseAuthViewModel.BaseUiState
 import com.example.foodhub_android.ui.theme.BitBlack
-import com.example.foodhub_android.ui.theme.Orange
+import com.example.foodhub_android.ui.theme.MyPrimaryColor
 
 @Composable
 fun AuthScreen(viewModel: AuthViewModel = hiltViewModel(), navController: NavController) {
@@ -145,7 +145,7 @@ fun AuthScreen(viewModel: AuthViewModel = hiltViewModel(), navController: NavCon
                 .align(Alignment.TopEnd)
                 .padding(20.dp)
         ) {
-            Text(text = stringResource(id = R.string.skip), color = Orange)
+            Text(text = stringResource(id = R.string.skip), color = MyPrimaryColor)
         }
 
         Column(
@@ -160,7 +160,7 @@ fun AuthScreen(viewModel: AuthViewModel = hiltViewModel(), navController: NavCon
             )
             Text(
                 text = stringResource(id = R.string.food_hub),
-                color = Orange,
+                color = MyPrimaryColor,
                 fontSize = 50.sp,
                 fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
             )

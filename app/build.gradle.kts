@@ -43,6 +43,23 @@ android {
     buildFeatures {
         compose = true
     }
+    flavorDimensions += "environment"
+
+    productFlavors {
+        create("customer") {
+            dimension = "environment"
+        }
+        create("restaurant") {
+            dimension = "environment"
+            applicationIdSuffix = ".restaurant"
+            resValue("string", "app_name", "FH Restaurant")
+        }
+        create("rider") {
+            dimension = "environment"
+            applicationIdSuffix = ".rider"
+            resValue("string", "app_name", "FH Rider")
+        }
+    }
 }
 
 dependencies {

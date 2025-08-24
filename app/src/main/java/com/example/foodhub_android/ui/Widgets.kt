@@ -37,7 +37,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.foodhub_android.R
-import com.example.foodhub_android.ui.theme.Orange
+import com.example.foodhub_android.ui.theme.MyPrimaryColor
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 
@@ -149,7 +149,7 @@ fun CustomEditText(
     interactionSource: MutableInteractionSource? = null,
     shape: Shape = RoundedCornerShape(10.dp),
     colors: TextFieldColors = OutlinedTextFieldDefaults.colors().copy(
-        focusedIndicatorColor = Orange,
+        focusedIndicatorColor = MyPrimaryColor,
         unfocusedIndicatorColor = Color.LightGray.copy(alpha = 0.4f),
     )
 ) {
@@ -218,7 +218,7 @@ fun BasicDialog(
             Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = onDismiss,
-                colors = ButtonDefaults.buttonColors(containerColor = Orange),
+                colors = ButtonDefaults.buttonColors(containerColor = MyPrimaryColor),
                 shape = RoundedCornerShape(32.dp)
             ) {
                 Text(text = stringResource(id = R.string.ok), color = Color.White)
@@ -227,7 +227,7 @@ fun BasicDialog(
             Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = onAction,
-                colors = ButtonDefaults.buttonColors(containerColor = Orange),
+                colors = ButtonDefaults.buttonColors(containerColor = MyPrimaryColor),
                 shape = RoundedCornerShape(32.dp)
             ) {
                 Text(text = stringResource(id = R.string.action), color = Color.White)

@@ -106,12 +106,11 @@ interface FoodApi {
     @GET("/notifications")
     suspend fun getNotifications(): Response<NotificationListResponse>
 
-    // add restaurant endpoints
-//    @GET("/restaurant-owner/profile")
-//    suspend fun getRestaurantProfile(): Response<Restaurant>
+    @GET("/restaurant-owner/profile")
+    suspend fun getRestaurantProfile(): Response<Restaurant>
 
-//    @GET("/restaurant-owner/orders")
-//    suspend fun getRestaurantOrders(@Query("status") status: String): Response<OrderListResponse>
+    @GET("/restaurant-owner/orders")
+    suspend fun getRestaurantOrders(@Query("status") status: String): Response<OrderListResponse>
 
     @PATCH("orders/{orderId}/status")
     suspend fun updateOrderStatus(

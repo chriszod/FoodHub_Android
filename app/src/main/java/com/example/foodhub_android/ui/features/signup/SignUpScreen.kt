@@ -53,7 +53,7 @@ import com.example.foodhub_android.ui.BasicDialog
 import com.example.foodhub_android.ui.CustomEditText
 import com.example.foodhub_android.ui.GroupSocialsButton
 import com.example.foodhub_android.ui.features.base.BaseAuthViewModel.BaseUiState
-import com.example.foodhub_android.ui.theme.Orange
+import com.example.foodhub_android.ui.theme.MyPrimaryColor
 
 @Composable
 fun SignUpScreen(viewModel: SignUpViewModel = hiltViewModel(), navController: NavController) {
@@ -167,7 +167,7 @@ fun SignUpScreen(viewModel: SignUpViewModel = hiltViewModel(), navController: Na
             Button(
                 onClick = viewModel::onSignUpClick,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Orange
+                    containerColor = MyPrimaryColor
                 ),
                 modifier = Modifier.height(55.dp)
             ) {
@@ -212,7 +212,7 @@ fun SignUpScreen(viewModel: SignUpViewModel = hiltViewModel(), navController: Na
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
                     text = stringResource(id = R.string.login),
-                    color = Orange,
+                    color = MyPrimaryColor,
                     fontSize = 16.sp,
                     textDecoration = TextDecoration.Underline,
                     modifier = Modifier.clickable(onClick = viewModel::onLoginCLick)
