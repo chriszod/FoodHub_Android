@@ -31,6 +31,7 @@ sealed class BottomNavItem(val route: NavRoute, val icon: Int) {
     object Home : BottomNavItem(com.example.foodhub_android.navigation.Home, R.drawable.ic_home)
     object Orders : BottomNavItem(OrderList, R.drawable.ic_orders)
     object Notification : BottomNavItem(com.example.foodhub_android.navigation.Notification, R.drawable.ic_notification)
+    object Menu : BottomNavItem(MenuList, R.drawable.ic_bag)
 }
 
 @Composable
@@ -41,7 +42,8 @@ fun BottomNavigationBar(navController: NavController, unreadCount: State<Int>) {
     val items = listOf(
         BottomNavItem.Home,
         BottomNavItem.Orders,
-        BottomNavItem.Notification
+        BottomNavItem.Notification,
+        BottomNavItem.Menu
     )
     NavigationBar(
         containerColor = Color.White

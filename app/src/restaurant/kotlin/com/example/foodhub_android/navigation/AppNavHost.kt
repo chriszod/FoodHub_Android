@@ -22,6 +22,9 @@ import com.example.foodhub_android.data.remote.SessionViewModel
 import com.example.foodhub_android.ui.features.auth.AuthScreen
 import com.example.foodhub_android.ui.features.home.HomeScreen
 import com.example.foodhub_android.ui.features.login.LoginScreen
+import com.example.foodhub_android.ui.features.menu.add.AddMenuItemScreen
+import com.example.foodhub_android.ui.features.menu.add.ImagePickerScreen
+import com.example.foodhub_android.ui.features.menu.list.ListMenuItemsScreen
 import com.example.foodhub_android.ui.features.notification.NotificationListScreen
 import com.example.foodhub_android.ui.features.notification.NotificationsViewModel
 import com.example.foodhub_android.ui.features.order.OrderDetailsScreen
@@ -96,9 +99,21 @@ fun AppNavHost(
                     OrderListScreen(navController)
                 }
                 composable<OrderDetails> {
-                    shouldShowBottomNav.value = true
+                    shouldShowBottomNav.value = false
                     val orderId = it.toRoute<OrderDetails>().orderId
                     OrderDetailsScreen( orderId,navController)
+                }
+                composable<MenuList> {
+                    shouldShowBottomNav.value = true
+                    ListMenuItemsScreen(navController, this@SharedTransitionLayout, this)
+                }
+                composable<AddMenu> {
+                    shouldShowBottomNav.value = false
+                    AddMenuItemScreen(navController)
+                }
+                composable<ImagePicker> {
+                    shouldShowBottomNav.value = false
+                    ImagePickerScreen(navController)
                 }
             }
         }

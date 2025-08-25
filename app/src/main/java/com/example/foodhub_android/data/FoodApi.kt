@@ -10,8 +10,11 @@ import com.example.foodhub_android.data.models.CategoriesResponse
 import com.example.foodhub_android.data.models.ConfirmPaymentRequest
 import com.example.foodhub_android.data.models.ConfirmPaymentResponse
 import com.example.foodhub_android.data.models.FCMRequest
+import com.example.foodhub_android.data.models.FoodItem
+import com.example.foodhub_android.data.models.FoodItemListResponse
 import com.example.foodhub_android.data.models.FoodItemResponse
 import com.example.foodhub_android.data.models.GenericMsgResponse
+import com.example.foodhub_android.data.models.ImageUploadResponse
 import com.example.foodhub_android.data.models.LoginRequest
 import com.example.foodhub_android.data.models.NotificationListResponse
 import com.example.foodhub_android.data.models.OAuthRequest
@@ -24,13 +27,16 @@ import com.example.foodhub_android.data.models.RestaurantsResponse
 import com.example.foodhub_android.data.models.ReverseGeoCodeRequest
 import com.example.foodhub_android.data.models.SignUpRequest
 import com.example.foodhub_android.data.models.UpdateCartItemRequest
+import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -114,19 +120,19 @@ interface FoodApi {
         @Body map: Map<String, String>
     ): Response<GenericMsgResponse>
 
-//    @GET("/restaurants/{id}/menu")
-//    suspend fun getRestaurantMenu(@Path("id") restaurantId: String): Response<FoodItemListResponse>
+    @GET("/restaurants/{id}/menu")
+    suspend fun getRestaurantMenu(@Path("id") restaurantId: String): Response<FoodItemListResponse>
 
-//    @POST("/restaurants/{id}/menu")
-//    suspend fun addRestaurantMenu(
-//        @Path("id") restaurantId: String,
-//        @Body foodItem: FoodItem
-//    ): Response<GenericMsgResponse>
+    @POST("/restaurants/{id}/menu")
+    suspend fun addRestaurantMenu(
+        @Path("id") restaurantId: String,
+        @Body foodItem: FoodItem
+    ): Response<GenericMsgResponse>
 
-//    @POST("/images/upload")
-//    @Multipart
-//    suspend fun uploadImage(@Part image: MultipartBody.Part): Response<ImageUploadResponse>
-//
+    @POST("/images/upload")
+    @Multipart
+    suspend fun uploadImage(@Part image: MultipartBody.Part): Response<ImageUploadResponse>
+
 //    @GET("/rider/deliveries/available")
 //    suspend fun getAvailableDeliveries(): Response<DelieveriesListResponse>
 
