@@ -9,6 +9,7 @@ import com.example.foodhub_android.data.models.CartResponse
 import com.example.foodhub_android.data.models.CategoriesResponse
 import com.example.foodhub_android.data.models.ConfirmPaymentRequest
 import com.example.foodhub_android.data.models.ConfirmPaymentResponse
+import com.example.foodhub_android.data.models.DeliveriesListResponse
 import com.example.foodhub_android.data.models.FCMRequest
 import com.example.foodhub_android.data.models.FoodItem
 import com.example.foodhub_android.data.models.FoodItemListResponse
@@ -25,6 +26,7 @@ import com.example.foodhub_android.data.models.PaymentIntentResponse
 import com.example.foodhub_android.data.models.Restaurant
 import com.example.foodhub_android.data.models.RestaurantsResponse
 import com.example.foodhub_android.data.models.ReverseGeoCodeRequest
+import com.example.foodhub_android.data.models.RiderDeliveryOrderListResponse
 import com.example.foodhub_android.data.models.SignUpRequest
 import com.example.foodhub_android.data.models.UpdateCartItemRequest
 import okhttp3.MultipartBody
@@ -133,15 +135,15 @@ interface FoodApi {
     @Multipart
     suspend fun uploadImage(@Part image: MultipartBody.Part): Response<ImageUploadResponse>
 
-//    @GET("/rider/deliveries/available")
-//    suspend fun getAvailableDeliveries(): Response<DelieveriesListResponse>
+    @GET("/rider/deliveries/available")
+    suspend fun getAvailableDeliveries(): Response<DeliveriesListResponse>
 
-//    @POST("/rider/deliveries/{orderId}/reject")
-//    suspend fun rejectDelivery(@Path("orderId") orderId: String): Response<GenericMsgResponse>
+    @POST("/rider/deliveries/{orderId}/reject")
+    suspend fun rejectDelivery(@Path("orderId") orderId: String): Response<GenericMsgResponse>
 
-//    @POST("/rider/deliveries/{orderId}/accept")
-//    suspend fun acceptDelivery(@Path("orderId") orderId: String): Response<GenericMsgResponse>
-//
-//    @GET("/rider/deliveries/active")
-//    suspend fun getActiveDeliveries(): Response<RiderDeliveryOrderListResponse>
+    @POST("/rider/deliveries/{orderId}/accept")
+    suspend fun acceptDelivery(@Path("orderId") orderId: String): Response<GenericMsgResponse>
+
+    @GET("/rider/deliveries/active")
+    suspend fun getActiveDeliveries(): Response<RiderDeliveryOrderListResponse>
 }
