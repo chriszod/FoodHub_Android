@@ -3,6 +3,9 @@ package com.example.foodhub_android.di
 import android.content.Context
 import com.example.foodhub_android.data.FoodApi
 import com.example.foodhub_android.data.remote.FoodHubSession
+import com.example.foodhub_android.data.socket.SocketService
+import com.example.foodhub_android.data.socket.SocketServiceImpl
+import com.example.foodhub_android.location.LocationManager
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import dagger.Module
@@ -63,4 +66,17 @@ object RepositoryModule {
     @Singleton
     fun provideFoodApi(retrofit: Retrofit): FoodApi =
         retrofit.create(FoodApi::class.java)
+
+    @Provides
+    fun provideSocketService() : SocketService {
+        return SocketServiceImpl()
+    }
+
+    @Provides
+    fun provideLocationManager(
+        fusedLocationProviderClient: FusedLocationProviderClient,
+        @ApplicationContext context: Context
+    ): LocationManager {
+        return LocationManager(fusedLocationProviderClient, context)
+    }
 }

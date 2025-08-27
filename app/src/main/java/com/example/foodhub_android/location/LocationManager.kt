@@ -23,7 +23,7 @@ import javax.inject.Singleton
 @Singleton
 class LocationManager @Inject constructor(
     private val fusedLocationProviderClient: FusedLocationProviderClient,
-    @ApplicationContext val context: Context
+    @param:ApplicationContext val context: Context
 ) {
 
     @SuppressLint("MissingPermission")

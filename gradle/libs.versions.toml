@@ -1,5 +1,6 @@
 [versions]
 agp = "8.12.0"
+androidMapsUtils = "3.14.0"
 coilCompose = "3.3.0"
 converterGson = "3.0.0"
 coreSplashscreen = "1.0.1"
@@ -31,6 +32,7 @@ firebaseMessagingKtx = "24.1.2"
 
 [libraries]
 
+android-maps-utils = { module = "com.google.maps.android:android-maps-utils", version.ref = "androidMapsUtils" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-messaging-ktx = { module = "com.google.firebase:firebase-messaging-ktx" }
 stripe-android = { module = "com.stripe:stripe-android", version.ref = "stripe" }

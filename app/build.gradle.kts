@@ -101,6 +101,8 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.messaging.ktx)
 
+    implementation(libs.android.maps.utils)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

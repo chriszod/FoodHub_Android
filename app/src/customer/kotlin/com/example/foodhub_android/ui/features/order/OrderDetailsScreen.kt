@@ -27,6 +27,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.foodhub_android.R
+import com.example.foodhub_android.ui.features.orders.OrderTrackerMapView
+import com.example.foodhub_android.utils.OrdersUtils
 import com.example.foodhub_android.utils.StringUtils
 import kotlinx.coroutines.flow.collectLatest
 
@@ -107,9 +109,9 @@ fun OrderDetailsScreen(
                     Text(text = order.status)
                 }
 
-//                if (order.status == OrdersUtils.OrderStatus.OUT_FOR_DELIVERY.name) {
-//                    OrderTrackerMapView(modifier = Modifier, viewModel = viewModel, order = order)
-//                }
+                if (order.status == OrdersUtils.OrderStatus.OUT_FOR_DELIVERY.name) {
+                    OrderTrackerMapView(modifier = Modifier, viewModel = viewModel, order = order)
+                }
             }
 
             is OrderDetailsViewModel.OrderDetailsState.Error -> {

@@ -21,6 +21,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.foodhub_android.ui.features.notification.ErrorScreen
 import com.example.foodhub_android.ui.features.notification.LoadingScreen
+import com.example.foodhub_android.ui.features.orders.OrderTrackerMapView
+import com.example.foohhub_android.utils.OrdersUtils
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
@@ -95,6 +97,30 @@ fun OrderDetailsScreen(
                             Text(text = it)
                         }
                     }
+                }
+            }
+
+            is OrderDetailsViewModel.OrderDetailsUiState.OrderDelivery -> {
+                val order =
+                    (uiState.value as OrderDetailsViewModel.OrderDetailsUiState.OrderDelivery).order
+                Column(modifier = Modifier.fillMaxSize()) {
+                    Text(text = order.id)
+                    Spacer(modifier = Modifier.padding(8.dp))
+                    Button(onClick = {
+                        viewModel.updateOrderStatus(
+                            order.id,
+                            OrdersUtils.OrderStatus.DELIVERED.name
+                        )
+                    }) {
+                        Text(text = "Deliver")
+                    }
+                    OrderTrackerMapView(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth(),
+                        viewModel = viewModel,
+                        order = order
+                    )
                 }
             }
         }
