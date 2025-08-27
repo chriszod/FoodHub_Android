@@ -1,11 +1,8 @@
 package com.example.foodhub_android.navigation
 
-import android.os.Bundle
 import androidx.navigation.NavType
 import com.example.foodhub_android.data.models.FoodItem
 import kotlinx.serialization.json.Json
-import java.net.URLDecoder
-import java.net.URLEncoder
 
 val foodItemNavType = object : NavType<FoodItem>(false) {
     override fun get(
